@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Examination Portal{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center p-5 rounded-4">
+    <h1 class="display-5 fw-bold">
+        Examination Management Portal
+    </h1>
+
+    <p class="lead mt-3">
+        Manage examinations, book slots, and access results
+        from one place.
+    </p>
+
+    <p class="text-secondary">
+        Your portal is running successfully.
+    </p>
+
+    {% if current_user.is_authenticated %}
+        <a href="{{ url_for('main.dashboard') }}"
+           class="btn btn-primary btn-lg mt-3">
+            Go to My Dashboard
+        </a>
+    {% else %}
+        <div class="mt-4">
+            <a href="{{ url_for('main.login') }}"
+               class="btn btn-primary btn-lg me-2">
+                Log In
+            </a>
+
+            <a href="{{ url_for('main.register') }}"
+               class="btn btn-outline-primary btn-lg">
+                Create Account
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

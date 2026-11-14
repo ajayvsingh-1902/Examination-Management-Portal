@@ -1,0 +1,256 @@
+ 
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard | EMP{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+
+    <!-- Dashboard Heading -->
+    <h1 class="fw-bold">Student Dashboard</h1>
+
+    <p class="text-secondary">
+        Welcome, {{ current_user.name }}!
+    </p>
+
+    <!-- Available examinations, available slots and upcoming examinations -->
+    <div class="row g-4 mt-1 mb-2">
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-body-tertiary py-3">
+                    <h5 class="fw-bold mb-0">
+                        Available Examinations
+                        <span class="badge text-bg-primary ms-1">{{ available_exams|length }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if available_exams %}
+                    <ul class="list-group list-group-flush">
+                        {% for exam, open_slot_count in available_exams[:5] %}
+                        <li class="list-group-item px-0">
+                            <div class="fw-semibold">{{ exam.title }}</div>
+                            <div class="small text-secondary">
+                                {{ exam.course.code }} &middot; {{ exam.examination_type }}
+                                &middot; {{ open_slot_count }} open slot(s)
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% if available_exams|length > 5 %}
+                    <p class="small text-secondary mt-2 mb-0">
+                        and {{ available_exams|length - 5 }} more...
+                    </p>
+                    {% endif %}
+                    {% else %}
+                    <p class="text-secondary mb-0">
+                        No examinations are open for booking right now.
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-body-tertiary py-3">
+                    <h5 class="fw-bold mb-0">
+                        Available Examination Slots
+                        <span class="badge text-bg-primary ms-1">{{ available_slots|length }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if available_slots %}
+                    <ul class="list-group list-group-flush">
+                        {% for slot in available_slots[:5] %}
+                        <li class="list-group-item px-0">
+                            <div class="fw-semibold">{{ slot.examination.title }}</div>
+                            <div class="small text-secondary">
+                                {{ slot.slot_date.strftime('%d %b %Y') }},
+                                {{ slot.start_time.strftime('%I:%M %p') }} -
+                                {{ slot.end_time.strftime('%I:%M %p') }}
+                                &middot; {{ slot.available_seats }} seat(s) left
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% if available_slots|length > 5 %}
+                    <p class="small text-secondary mt-2 mb-0">
+                        and {{ available_slots|length - 5 }} more...
+                    </p>
+                    {% endif %}
+                    {% else %}
+                    <p class="text-secondary mb-0">
+                        No slots with free seats are available right now.
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-body-tertiary py-3">
+                    <h5 class="fw-bold mb-0">
+                        Upcoming Examinations
+                        <span class="badge text-bg-success ms-1">{{ upcoming_bookings|length }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if upcoming_bookings %}
+                    <ul class="list-group list-group-flush">
+                        {% for booking in upcoming_bookings[:5] %}
+                        <li class="list-group-item px-0">
+                            <div class="fw-semibold">{{ booking.examination.title }}</div>
+                            <div class="small text-secondary">
+                                {{ booking.slot.slot_date.strftime('%d %b %Y') }},
+                                {{ booking.slot.start_time.strftime('%I:%M %p') }} -
+                                {{ booking.slot.end_time.strftime('%I:%M %p') }}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% if upcoming_bookings|length > 5 %}
+                    <p class="small text-secondary mt-2 mb-0">
+                        and {{ upcoming_bookings|length - 5 }} more...
+                    </p>
+                    {% endif %}
+                    {% else %}
+                    <p class="text-secondary mb-0">
+                        You have no upcoming examinations.
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row g-4 mt-2">
+
+        <!-- Available Examinations -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold">Search &amp; Book Examinations</h5>
+
+                    <p class="text-secondary">
+                        Browse published examinations and book your exams.
+                    </p>
+
+                    <a href="{{ url_for('main.student_examinations') }}"
+                       class="btn btn-primary">
+                        Browse Examinations
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Bookings -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold">My Bookings</h5>
+
+                    <p class="text-secondary">
+                        View your booked examinations and booking status.
+                    </p>
+
+                    <a href="{{ url_for('main.my_bookings') }}"
+                       class="btn btn-primary">
+                        View My Bookings
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Exam Timetable -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold">My Exam Timetable</h5>
+
+                    <p class="text-secondary">
+                        View your booked exams, dates, start times, and end times.
+                    </p>
+
+                    <a href="{{ url_for('main.student_timetable') }}"
+                       class="btn btn-primary">
+                        View Timetable
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Results -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold">My Examination Results</h5>
+
+                    <p class="text-secondary">
+                        View your published examination marks and examiner feedback.
+                    </p>
+
+                    <a href="{{ url_for('main.student_results') }}"
+                       class="btn btn-primary">
+                        View My Results
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Notifications -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold">My Notifications</h5>
+
+                    <p class="text-secondary">
+                        View booking confirmations, result updates, and important alerts.
+                    </p>
+
+                    <a href="{{ url_for('main.student_notifications') }}"
+                       class="btn btn-primary">
+                        View Notifications
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Profile -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold">My Profile</h5>
+
+                    <p class="text-secondary">
+                        View your account details and update your name and email address.
+                    </p>
+
+                    <a href="{{ url_for('main.student_profile') }}"
+                       class="btn btn-primary">
+                        View My Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Log Out -->
+    <form method="POST"
+          action="{{ url_for('main.logout') }}"
+          class="mt-4">
+
+        <input type="hidden"
+               name="csrf_token"
+               value="{{ csrf_token() }}">
+
+        <button class="btn btn-outline-danger" type="submit">
+            Log Out
+        </button>
+    </form>
+
+</div>
+{% endblock %}

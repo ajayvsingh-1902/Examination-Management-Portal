@@ -1,0 +1,243 @@
+
+{% extends "base.html" %}
+
+{% block title %}Edit Examination | EMP{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <div>
+            <h1 class="fw-bold mb-2">Edit Examination</h1>
+            <p class="text-secondary mb-0">
+                Update the examination details.
+            </p>
+        </div>
+
+        <a href="{{ url_for('main.manage_examinations') }}"
+           class="btn btn-outline-secondary">
+            Back to Examinations
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+
+            <form method="POST"
+                  action="{{ url_for('main.edit_examination', examination_id=examination.id) }}">
+
+                <input type="hidden" name="csrf_token"
+                       value="{{ csrf_token() }}">
+
+                <!-- Examination Title -->
+                <div class="mb-3">
+                    <label for="title" class="form-label fw-semibold">
+                        Examination Title *
+                    </label>
+                    <input type="text"
+                           class="form-control"
+                           id="title"
+                           name="title"
+                           value="{{ examination.title }}"
+                           maxlength="150"
+                           required>
+                </div>
+
+                <!-- Examination Type -->
+                <div class="mb-3">
+                    <label for="examination_type"
+                           class="form-label fw-semibold">
+                        Examination Type *
+                    </label>
+
+                    <select class="form-select"
+                            id="examination_type"
+                            name="examination_type"
+                            required>
+                        <option value="Viva"
+                            {% if examination.examination_type == 'Viva' %}selected{% endif %}>
+                            Viva
+                        </option>
+
+                        <option value="Practical"
+                            {% if examination.examination_type == 'Practical' %}selected{% endif %}>
+                            Practical
+                        </option>
+
+                        <option value="Project Demo"
+                            {% if examination.examination_type == 'Project Demo' %}selected{% endif %}>
+                            Project Demo
+                        </option>
+
+                        <option value="Assessment"
+                            {% if examination.examination_type == 'Assessment' %}selected{% endif %}>
+                            Assessment
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Course -->
+                <div class="mb-3">
+                    <label for="course_id" class="form-label fw-semibold">
+                        Course *
+                    </label>
+
+                    <select class="form-select"
+                            id="course_id"
+                            name="course_id"
+                            required>
+                        {% for course in courses %}
+                        <option value="{{ course.id }}"
+                            {% if course.id == examination.course_id %}selected{% endif %}>
+                            {{ course.code }} — {{ course.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Duration and Maximum Marks -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="duration_minutes"
+                               class="form-label fw-semibold">
+                            Duration (minutes) *
+                        </label>
+
+                        <input type="number"
+                               class="form-control"
+                               id="duration_minutes"
+                               name="duration_minutes"
+                               value="{{ examination.duration_minutes }}"
+                               min="1"
+                               max="1440"
+                               step="1"
+                               required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="max_marks"
+                               class="form-label fw-semibold">
+                            Maximum Marks *
+                        </label>
+
+                        <input type="number"
+                               class="form-control"
+                               id="max_marks"
+                               name="max_marks"
+                               value="{{ examination.max_marks }}"
+                               min="1"
+                               step="1"
+                               required>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Student Booking Window -->
+                <h5 class="fw-bold mb-3">Student Booking Window</h5>
+
+                <p class="text-secondary small">
+                    Controls when students can book examination slots.
+                </p>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="booking_opens_at"
+                               class="form-label fw-semibold">
+                            Booking Opens At
+                        </label>
+
+                        <input type="datetime-local"
+                               class="form-control"
+                               id="booking_opens_at"
+                               name="booking_opens_at"
+                               value="{{ examination.booking_opens_at.strftime('%Y-%m-%dT%H:%M') if examination.booking_opens_at else '' }}">
+
+                        <small class="text-secondary">
+                            Leave blank for no opening-time restriction.
+                        </small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="booking_closes_at"
+                               class="form-label fw-semibold">
+                            Booking Closes At
+                        </label>
+
+                        <input type="datetime-local"
+                               class="form-control"
+                               id="booking_closes_at"
+                               name="booking_closes_at"
+                               value="{{ examination.booking_closes_at.strftime('%Y-%m-%dT%H:%M') if examination.booking_closes_at else '' }}">
+
+                        <small class="text-secondary">
+                            Leave blank for no closing-time restriction.
+                        </small>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Examiner Slot-Creation Window -->
+                <h5 class="fw-bold mb-3">
+                    Examiner Slot-Creation Window
+                </h5>
+
+                <p class="text-secondary small">
+                    Controls when assigned examiners can create examination slots.
+                </p>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="slot_creation_opens_at"
+                               class="form-label fw-semibold">
+                            Slot Creation Opens At
+                        </label>
+
+                        <input type="datetime-local"
+                               class="form-control"
+                               id="slot_creation_opens_at"
+                               name="slot_creation_opens_at"
+                               value="{{ examination.slot_creation_opens_at.strftime('%Y-%m-%dT%H:%M') if examination.slot_creation_opens_at else '' }}">
+
+                        <small class="text-secondary">
+                            Leave blank for no opening-time restriction.
+                        </small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="slot_creation_closes_at"
+                               class="form-label fw-semibold">
+                            Slot Creation Closes At
+                        </label>
+
+                        <input type="datetime-local"
+                               class="form-control"
+                               id="slot_creation_closes_at"
+                               name="slot_creation_closes_at"
+                               value="{{ examination.slot_creation_closes_at.strftime('%Y-%m-%dT%H:%M') if examination.slot_creation_closes_at else '' }}">
+
+                        <small class="text-secondary">
+                            Leave blank for no closing-time restriction.
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        Save Changes
+                    </button>
+
+                    <a href="{{ url_for('main.manage_examinations') }}"
+                       class="btn btn-outline-secondary ms-2">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,165 @@
+
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard | EMP{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h1 class="fw-bold mb-2">Admin Dashboard</h1>
+            <p class="text-secondary mb-0">
+                Welcome, {{ current_user.name }}. Manage your examination portal here.
+            </p>
+        </div>
+        <span class="badge bg-dark fs-6 px-3 py-2">Administrator</span>
+    </div>
+
+    <!-- User Statistics -->
+    <h4 class="fw-bold mb-3">Users Overview</h4>
+    <div class="row g-3 mb-4">
+        {% for label, value in [
+            ('Total Users', total_users),
+            ('Students', total_students),
+            ('Examiners', total_examiners),
+            ('Pending Approvals', pending_examiners)
+        ] %}
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <p class="text-secondary mb-2">{{ label }}</p>
+                    <h2 class="fw-bold mb-0">{{ value }}</h2>
+                    {% if label == 'Pending Approvals' %}
+                    <a href="{{ url_for('main.manage_examiners') }}"
+                       class="small text-decoration-none">
+                        Review examiners
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Academic Statistics -->
+    <h4 class="fw-bold mb-3">Academic Overview</h4>
+    <div class="row g-3 mb-4">
+        {% for label, value, description in [
+            ('Total Courses', total_courses, 'Courses in the portal'),
+            ('Total Examinations', total_examinations, 'All examination records'),
+            ('Total Exam Slots', total_exam_slots, 'Scheduled examination slots'),
+            ('Published Exams', published_examinations, 'Available for students'),
+            ('Draft Exams', draft_examinations, 'Not yet published')
+        ] %}
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <p class="text-secondary mb-2">{{ label }}</p>
+                    <h2 class="fw-bold mb-0">{{ value }}</h2>
+                    <p class="small text-secondary mt-2 mb-0">{{ description }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Booking Statistics -->
+    <h4 class="fw-bold mb-3">Booking Overview</h4>
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <p class="text-secondary mb-2">Total Booking Records</p>
+                    <h2 class="fw-bold mb-0">{{ total_bookings }}</h2>
+                    <p class="small text-secondary mt-2 mb-0">
+                        Includes cancelled bookings
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <p class="text-secondary mb-2">Active Bookings</p>
+                    <h2 class="fw-bold mb-0">{{ active_bookings }}</h2>
+                    <p class="small text-secondary mt-2 mb-0">
+                        Currently booked examinations
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Statistics -->
+    <h4 class="fw-bold mb-3">Results Overview</h4>
+    <div class="row g-3 mb-4">
+        {% for label, value, color, description in [
+            ('Total Results', total_results, 'dark', 'All entered results'),
+            ('Published Results', published_results, 'success', 'Visible to students'),
+            ('Draft Results', draft_results, 'warning', 'Awaiting publication')
+        ] %}
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <p class="text-secondary mb-2">{{ label }}</p>
+                    <h2 class="fw-bold text-{{ color }} mb-0">{{ value }}</h2>
+                    <p class="small text-secondary mt-2 mb-0">{{ description }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Management Centre -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+            <h4 class="fw-bold mb-2">Management Centre</h4>
+            <p class="text-secondary mb-4">
+                Manage users, courses, examinations, slots, bookings and results.
+            </p>
+
+            <div class="row g-3">
+
+                {% set management_cards = [
+                    ('Examiner Approvals', 'Review examiner accounts and approval status.', 'main.manage_examiners', 'Manage Examiners', 'primary'),
+                    ('Course Management', 'Add, edit, search and manage courses.', 'main.manage_courses', 'Manage Courses', 'primary'),
+                    ('Examination Management', 'Create examinations and manage publication.', 'main.manage_examinations', 'Manage Examinations', 'primary'),
+                    ('Results Management', 'Review examination results and publication status.', 'main.admin_results', 'View Results', 'success'),
+                    ('Student Management', 'Search student accounts and manage access.', 'main.manage_students', 'Manage Students', 'primary'),
+                    ('Examiner Assignments', 'Assign or reassign examiners to examinations.', 'main.manage_examiner_assignments', 'Manage Assignments', 'primary'),
+                    ('Examination Rubrics', 'Manage assessment criteria, marks and weightage.', 'main.manage_rubrics', 'Manage Rubrics', 'primary'),
+                    ('Booking Management', 'Search and monitor student examination bookings.', 'main.admin_bookings', 'View Bookings', 'primary'),
+                    ('All Examination Slots', 'View slots, dates, capacity and occupancy across the portal.', 'main.admin_exam_slots', 'View All Slots', 'info')
+                ] %}
+
+                {% for title, description, endpoint, button_text, color in management_cards %}
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="border rounded-3 p-3 h-100 d-flex flex-column">
+                        <h5 class="fw-bold">{{ title }}</h5>
+                        <p class="text-secondary small flex-grow-1">
+                            {{ description }}
+                        </p>
+                        <a href="{{ url_for(endpoint) }}"
+                           class="btn btn-primary w-100">
+                            {{ button_text }}
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout -->
+    <form method="POST" action="{{ url_for('main.logout') }}" class="mt-4">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-outline-danger" type="submit">
+            Log Out
+        </button>
+    </form>
+
+</div>
+{% endblock %}

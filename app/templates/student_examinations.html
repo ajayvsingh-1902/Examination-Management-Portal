@@ -1,0 +1,293 @@
+
+{% extends "base.html" %}
+
+{% block title %}Browse Examinations | EMP{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="fw-bold mb-1">Available Examinations</h1>
+        <p class="text-secondary mb-0">
+            Browse published examinations and reserve your preferred slot.
+        </p>
+    </div>
+
+    <a href="{{ url_for('main.my_bookings') }}"
+       class="btn btn-outline-primary">
+        <i class="bi bi-calendar-check me-1"></i>
+        My Bookings
+    </a>
+</div>
+
+<!-- Search and Filters -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <h5 class="fw-bold mb-3">Search and Filter Examinations</h5>
+
+        <form method="GET"
+              action="{{ url_for('main.student_examinations') }}">
+
+            <div class="mb-3">
+                <label for="search-query" class="form-label">
+                    Search
+                </label>
+                <input
+                    type="search"
+                    id="search-query"
+                    name="q"
+                    class="form-control"
+                    placeholder="Exam title, course name, or course code"
+                    value="{{ search_query }}"
+                >
+            </div>
+
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <label for="course-filter" class="form-label">
+                        Course
+                    </label>
+                    <select id="course-filter"
+                            name="course_id"
+                            class="form-select">
+                        <option value="">All courses</option>
+                        {% for course in courses %}
+                        <option value="{{ course.id }}"
+                            {% if selected_course_id == course.id %}selected{% endif %}>
+                            {{ course.code }} — {{ course.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label for="type-filter" class="form-label">
+                        Examination Type
+                    </label>
+                    <select id="type-filter"
+                            name="examination_type"
+                            class="form-select">
+                        <option value="">All types</option>
+                        {% for exam_type in ["Viva", "Practical", "Project Demo", "Assessment"] %}
+                        <option value="{{ exam_type }}"
+                            {% if selected_examination_type == exam_type %}selected{% endif %}>
+                            {{ exam_type }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label for="examiner-filter" class="form-label">
+                        Examiner
+                    </label>
+                    <select id="examiner-filter"
+                            name="examiner_id"
+                            class="form-select">
+                        <option value="">All examiners</option>
+                        {% for examiner in examiners %}
+                        <option value="{{ examiner.id }}"
+                            {% if selected_examiner_id == examiner.id %}selected{% endif %}>
+                            {{ examiner.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label for="exam-date-filter" class="form-label">
+                        Examination Date
+                    </label>
+                    <input
+                        type="date"
+                        id="exam-date-filter"
+                        name="exam_date"
+                        class="form-control"
+                        value="{{ selected_exam_date }}"
+                    >
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-funnel me-1"></i>
+                    Apply Filters
+                </button>
+
+                <a href="{{ url_for('main.student_examinations') }}"
+                   class="btn btn-outline-secondary">
+                    Reset Filters
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if examinations %}
+
+<p class="text-secondary mb-3">
+    {{ examinations|length }} examination(s) found.
+</p>
+
+<div class="row g-4">
+    {% for exam in examinations %}
+    <div class="col-12 col-lg-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4 d-flex flex-column">
+
+                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                    <h5 class="fw-bold mb-0">{{ exam.title }}</h5>
+                    <span class="badge text-bg-success">Published</span>
+                </div>
+
+                
+<p class="text-secondary mb-2">
+    {{ exam.course.code }} — {{ exam.course.name }}
+</p>
+
+<p class="text-secondary small mb-3">
+    <strong>Examiner(s):</strong>
+    {% if exam.examiner_assignments %}
+        {% for assignment in exam.examiner_assignments %}
+            {{ assignment.examiner.name }}{% if not loop.last %}, {% endif %}
+        {% endfor %}
+    {% else %}
+        Not assigned yet
+    {% endif %}
+</p>
+
+
+                <p class="mb-3">
+                    <span class="badge text-bg-info">
+                        {{ exam.examination_type }}
+                    </span>
+                </p>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <div class="rounded bg-body-tertiary p-3 h-100">
+                            <div class="small text-secondary">Duration</div>
+                            <div class="fw-semibold">
+                                {{ exam.duration_minutes }} minutes
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="rounded bg-body-tertiary p-3 h-100">
+                            <div class="small text-secondary">Maximum Marks</div>
+                            <div class="fw-semibold">{{ exam.max_marks }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if exam.id in booked_ids %}
+
+                    <div class="alert alert-success mt-auto mb-0">
+                        <strong>Already booked</strong>
+                        <p class="mb-0 small">
+                            You have an active booking for this examination.
+                            View the details under My Bookings.
+                        </p>
+                    </div>
+
+                {% elif available_slots[exam.id] %}
+
+                    <h6 class="fw-bold mb-3">Available Slots</h6>
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('main.book_examination', examination_id=exam.id) }}"
+                        class="mt-auto"
+                        onsubmit="return confirm('Confirm booking this examination slot?');"
+                    >
+                        <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                        >
+
+                        <label for="slot-{{ exam.id }}" class="form-label">
+                            Select date and time
+                        </label>
+
+                        <select
+                            class="form-select mb-3"
+                            id="slot-{{ exam.id }}"
+                            name="slot_id"
+                            required
+                        >
+                            <option value="">Choose an available slot</option>
+
+                            {% for slot in available_slots[exam.id] %}
+                                {% set booked_count = booking_counts.get(slot.id, 0) %}
+                                {% set remaining = slot.capacity - booked_count %}
+
+                                {% if remaining > 0 %}
+                                <option value="{{ slot.id }}">
+                                    {{ slot.slot_date.strftime("%d %b %Y") }}
+                                    | {{ slot.start_time.strftime("%I:%M %p") }}
+                                    – {{ slot.end_time.strftime("%I:%M %p") }}
+                                    | {{ remaining }} seat{% if remaining != 1 %}s{% endif %} left
+                                </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-secondary small">
+                                {{ available_slots[exam.id]|length }}
+                                available slot(s)
+                            </span>
+                            <span class="text-secondary small">
+                                Capacity is limited
+                            </span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            Book Examination
+                        </button>
+                    </form>
+
+                {% else %}
+
+                    <div class="alert alert-warning mt-auto mb-0">
+                        <strong>No slots available</strong>
+                        <p class="mb-0 small">
+                            All slots may be full or no upcoming slots have
+                            been scheduled yet. Please check again later.
+                        </p>
+                    </div>
+
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-5 text-center">
+        <h5 class="fw-bold">No matching examinations found</h5>
+        <p class="text-secondary mb-3">
+            No published examinations match your search and selected filters.
+            Try changing your filters or resetting them.
+        </p>
+        <a href="{{ url_for('main.student_examinations') }}"
+           class="btn btn-outline-primary">
+            View All Examinations
+        </a>
+    </div>
+</div>
+
+{% endif %}
+
+<a href="{{ url_for('main.student_dashboard') }}"
+   class="btn btn-outline-secondary mt-4">
+    Back to Student Dashboard
+</a>
+
+{% endblock %}

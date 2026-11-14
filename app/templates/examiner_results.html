@@ -1,0 +1,79 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Examination Results</h2>
+    <p class="text-muted">Enter marks and publish results for students.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    {% if bookings %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>Student</th>
+                    <th>Examination</th>
+                    <th>Marks</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.student.name }}</td>
+                    <td>{{ booking.examination.title }}</td>
+                    <td>
+                        {% if booking.result %}
+                            {{ booking.result.marks_obtained }}
+                            / {{ booking.examination.max_marks }}
+                        {% else %}
+                            Not entered
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if booking.result %}
+                            {{ booking.result.status|capitalize }}
+                        {% else %}
+                            Pending
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a class="btn btn-primary btn-sm"
+                           href="{{ url_for('main.enter_exam_result', booking_id=booking.id) }}">
+                            Enter / Edit Marks
+                        </a>
+
+                        {% if booking.result and booking.result.status == 'draft' %}
+                        <form method="POST"
+                              action="{{ url_for('main.publish_exam_result', result_id=booking.result.id) }}"
+                              class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-success btn-sm"
+                                    onclick="return confirm('Publish this result?');">
+                                Publish
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <div class="alert alert-info mt-3">
+            No student bookings are available yet.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

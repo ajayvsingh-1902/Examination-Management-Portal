@@ -1,0 +1,350 @@
+
+{% extends "base.html" %}
+
+{% block title %}Manage Examiners | EMP{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <div>
+        <h1 class="fw-bold mb-2">Examiner Management</h1>
+        <p class="text-secondary mb-0">
+            Review examiner registrations and manage account approvals.
+        </p>
+    </div>
+
+    <a href="{{ url_for('main.admin_dashboard') }}"
+       class="btn btn-outline-secondary">
+        Back to Dashboard
+    </a>
+</div>
+
+<!-- Search -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <form method="GET" action="{{ url_for('main.manage_examiners') }}"
+              class="d-flex flex-wrap gap-2">
+            <input type="search" name="search" class="form-control"
+                   placeholder="Search examiners by name, email, department or ID..."
+                   value="{{ search }}" style="max-width: 460px;">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="{{ url_for('main.manage_examiners') }}"
+               class="btn btn-outline-secondary">Clear</a>
+        </form>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-secondary mb-2">Pending Approvals</p>
+                <h2 class="fw-bold mb-0">{{ pending_total }}</h2>
+                {% if pending_total %}
+                    <span class="badge text-bg-warning mt-2">
+                        Action Required
+                    </span>
+                {% else %}
+                    <span class="badge text-bg-success mt-2">
+                        All Caught Up
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-secondary mb-2">Approved Examiners</p>
+                <h2 class="fw-bold mb-0">{{ approved_total }}</h2>
+                <p class="small text-secondary mt-2 mb-0">
+                    Accounts approved by the administrator
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Examiner Approvals -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-warning-subtle py-3">
+        <h5 class="fw-bold mb-0">Pending Approvals</h5>
+    </div>
+
+    <div class="card-body p-4">
+        {% if pending_examiners %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Contact</th>
+                            <th>Registered On</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for examiner in pending_examiners %}
+                        <tr>
+                            <td>{{ examiner.id }}</td>
+                            <td class="fw-semibold">{{ examiner.name }}</td>
+                            <td>{{ examiner.email }}</td>
+                            <td>{{ examiner.department or "—" }}</td>
+                            <td>{{ examiner.contact_details or "—" }}</td>
+                            <td>
+                                {% if examiner.created_at %}
+                                    {{ examiner.created_at.strftime('%d %b %Y') }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            
+<td class="text-end">
+    <div class="d-flex justify-content-end gap-2 flex-wrap">
+
+        <form method="POST"
+              action="{{ url_for('main.approve_examiner', user_id=examiner.id) }}">
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <button type="submit" class="btn btn-success btn-sm">
+                Approve Examiner
+            </button>
+        </form>
+
+        <form method="POST"
+              action="{{ url_for('main.reject_examiner', user_id=examiner.id) }}"
+              onsubmit="return confirm('Reject and delete this pending examiner account?');">
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <button type="submit" class="btn btn-danger btn-sm">
+                Reject Examiner
+            </button>
+        </form>
+
+    </div>
+</td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <h5 class="fw-semibold">No pending approvals</h5>
+                <p class="text-secondary mb-0">
+                    {% if search %}No pending examiners match your search.{% else %}All examiner registration requests have been reviewed.{% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Approved Examiners -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-body-tertiary py-3">
+        <h5 class="fw-bold mb-0">Approved Examiners</h5>
+    </div>
+
+    <div class="card-body p-4">
+        {% if approved_examiners %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Contact</th>
+                            <th>Registration Date</th>
+                            <th>Status</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for examiner in approved_examiners %}
+                        <tr>
+                            <td>{{ examiner.id }}</td>
+                            <td class="fw-semibold">{{ examiner.name }}</td>
+                            <td>{{ examiner.email }}</td>
+                            <td>{{ examiner.department or "—" }}</td>
+                            <td>{{ examiner.contact_details or "—" }}</td>
+                            <td>
+                                {% if examiner.created_at %}
+                                    {{ examiner.created_at.strftime('%d %b %Y') }}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if examiner.is_active %}
+                                <span class="badge text-bg-success">
+                                    Active
+                                </span>
+                                {% else %}
+                                <span class="badge text-bg-secondary">
+                                    Deactivated
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <form method="POST"
+                                      action="{{ url_for('main.toggle_examiner_status', user_id=examiner.id) }}"
+                                      onsubmit="return confirm('Are you sure you want to change this examiner account status?');">
+                                    <input type="hidden" name="csrf_token"
+                                           value="{{ csrf_token() }}">
+                                    {% if examiner.is_active %}
+                                    <button type="submit"
+                                            class="btn btn-outline-danger btn-sm">
+                                        Deactivate
+                                    </button>
+                                    {% else %}
+                                    <button type="submit"
+                                            class="btn btn-outline-success btn-sm">
+                                        Activate
+                                    </button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <h5 class="fw-semibold">No approved examiners found</h5>
+                <p class="text-secondary mb-0">
+                    {% if search %}No approved examiners match your search.{% else %}Approved accounts will appear here.{% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+
+<!-- Assign Examination -->
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-primary-subtle py-3">
+        <h5 class="fw-bold mb-0">Assign Examination to Examiner</h5>
+    </div>
+
+    <div class="card-body p-4">
+        {% if examiner_options and examinations %}
+        <form method="POST" action="{{ url_for('main.manage_examiners') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label for="examiner_id" class="form-label fw-semibold">
+                        Approved Examiner
+                    </label>
+                    <select class="form-select" id="examiner_id"
+                            name="examiner_id" required>
+                        <option value="">Select examiner</option>
+                        {% for examiner in examiner_options %}
+                        <option value="{{ examiner.id }}">
+                            {{ examiner.name }} — {{ examiner.email }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-5">
+                    <label for="examination_id" class="form-label fw-semibold">
+                        Examination
+                    </label>
+                    <select class="form-select" id="examination_id"
+                            name="examination_id" required>
+                        <option value="">Select examination</option>
+                        {% for exam in examinations %}
+                        <option value="{{ exam.id }}">
+                            {{ exam.title }} — {{ exam.course.code }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        Assign
+                    </button>
+                </div>
+            </div>
+        </form>
+        {% else %}
+        <p class="text-secondary mb-0">
+            You need at least one approved examiner and one examination
+            before you can create an assignment.
+        </p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Existing Examination Assignments -->
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-body-tertiary py-3">
+        <h5 class="fw-bold mb-0">Current Examination Assignments</h5>
+    </div>
+
+    <div class="card-body p-4">
+        {% if assignments %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Examiner</th>
+                        <th>Examination</th>
+                        <th>Course</th>
+                        <th>Assigned On</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assignment in assignments %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">
+                                {{ assignment.examiner.name }}
+                            </div>
+                            <div class="small text-secondary">
+                                {{ assignment.examiner.email }}
+                            </div>
+                        </td>
+                        <td>{{ assignment.examination.title }}</td>
+                        <td>{{ assignment.examination.course.code }}</td>
+                        <td>
+                            {% if assignment.assigned_at %}
+                            {{ assignment.assigned_at.strftime('%d %b %Y') }}
+                            {% else %}
+                            —
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-3">
+            <p class="text-secondary mb-0">
+                No examination assignments have been created yet.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

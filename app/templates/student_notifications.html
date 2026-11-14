@@ -1,0 +1,90 @@
+
+{% extends "base.html" %}
+
+{% block title %}My Notifications | EMP{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="fw-bold">My Notifications</h1>
+            <p class="text-secondary mb-0">
+                You have {{ unread_count }} unread notification(s).
+            </p>
+        </div>
+
+        <a href="{{ url_for('main.student_dashboard') }}"
+           class="btn btn-outline-primary">
+            Back to Dashboard
+        </a>
+    </div>
+
+    {% if notifications %}
+        {% for notification in notifications %}
+            <div class="card border-0 shadow-sm mb-3
+                        {% if not notification.is_read %}border-start border-primary border-4{% endif %}">
+                <div class="card-body p-4">
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                        <div>
+                            <h5 class="fw-bold mb-2">
+                                {% if notification.category == "booking" %}
+                                    Exam Booking
+                                {% elif notification.category == "result" %}
+                                    Result Published
+                                {% elif notification.category == "reminder" %}
+                                    Exam Reminder
+                                {% else %}
+                                    Notification
+                                {% endif %}
+                            </h5>
+
+                            <p class="mb-2">
+                                {{ notification.message }}
+                            </p>
+
+                            <small class="text-secondary">
+                                {{ notification.created_at_ist.strftime("%d %b %Y, %I:%M %p") }}
+                            </small>
+                        </div>
+
+                        <div>
+                            {% if notification.is_read %}
+                                <span class="badge bg-secondary">Read</span>
+                            {% else %}
+                                <span class="badge bg-primary">Unread</span>
+
+                                <form method="POST"
+                                      action="{{ url_for('main.mark_notification_read', notification_id=notification.id) }}"
+                                      class="mt-2">
+
+                                    <input type="hidden"
+                                           name="csrf_token"
+                                           value="{{ csrf_token() }}">
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-primary">
+                                        Mark as Read
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center p-5">
+                <h4 class="fw-bold">You're All Caught Up!</h4>
+                <p class="text-secondary mb-0">
+                    Your notifications will appear here when available.
+                </p>
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

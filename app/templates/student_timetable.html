@@ -1,0 +1,96 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="fw-bold">My Exam Timetable</h1>
+            <p class="text-secondary mb-0">
+                View the dates and timings of your booked examinations.
+            </p>
+        </div>
+
+        <a href="{{ url_for('main.student_examinations') }}"
+           class="btn btn-outline-primary">
+            Browse Examinations
+        </a>
+    </div>
+
+    {% if timetable %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Examination</th>
+                        <th>Course</th>
+                        <th>Date</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for item in timetable %}
+                        <tr>
+                            <td class="fw-semibold">
+                                {{ item.exam.title }}
+                            </td>
+
+                            <td>
+                                {{ item.exam.course.name }}
+                            </td>
+
+                            <td>
+                                {{ item.slot.slot_date.strftime("%d %b %Y") }}
+                            </td>
+
+                            <td>
+                                {{ item.slot.start_time.strftime("%I:%M %p") }}
+                            </td>
+
+                            <td>
+                                {{ item.slot.end_time.strftime("%I:%M %p") }}
+                            </td>
+
+                            <td>
+                                {% if item.slot.slot_date < today %}
+                                    <span class="badge bg-secondary">
+                                        Completed
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-success">
+                                        Upcoming
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% else %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center p-5">
+                <h4 class="fw-bold">No Exams in Your Timetable</h4>
+                <p class="text-secondary">
+                    Book an examination with an available slot to see it here.
+                </p>
+                <a href="{{ url_for('main.student_examinations') }}"
+                   class="btn btn-primary">
+                    Browse Examinations
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    <a href="{{ url_for('main.student_dashboard') }}"
+       class="btn btn-outline-secondary mt-3">
+        Back to Dashboard
+    </a>
+
+</div>
+{% endblock %}

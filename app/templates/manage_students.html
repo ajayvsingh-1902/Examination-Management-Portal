@@ -1,0 +1,113 @@
+
+{% extends "base.html" %}
+
+{% block title %}Manage Students | EMP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <h1 class="fw-bold mb-1">Student Management</h1>
+        <p class="text-secondary mb-0">
+            View student accounts and manage their access.
+        </p>
+    </div>
+    <a href="{{ url_for('main.admin_dashboard') }}"
+       class="btn btn-outline-secondary">
+        Back to Dashboard
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <form method="GET" action="{{ url_for('main.manage_students') }}"
+              class="d-flex flex-wrap gap-2">
+            <input type="search" name="search" class="form-control"
+                   placeholder="Search by student name, email or ID..."
+                   value="{{ search }}" style="max-width: 420px;">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a href="{{ url_for('main.manage_students') }}"
+               class="btn btn-outline-secondary">Clear</a>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-body-tertiary py-3">
+        <h5 class="fw-bold mb-0">
+            Student Accounts ({{ students|length }})
+        </h5>
+    </div>
+
+    <div class="card-body p-0">
+        {% if students %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Registered On</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td class="ps-4">{{ student.id }}</td>
+                        <td class="fw-semibold">{{ student.name }}</td>
+                        <td>{{ student.email }}</td>
+                        <td>
+                            {% if student.created_at %}
+                                {{ student.created_at.strftime('%d %b %Y') }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if student.is_active %}
+                                <span class="badge text-bg-success">Active</span>
+                            {% else %}
+                                <span class="badge text-bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <form method="POST"
+                                  action="{{ url_for('main.toggle_student_status', user_id=student.id) }}"
+                                  onsubmit="return confirm('Are you sure you want to change this student account status?');">
+                                <input type="hidden" name="csrf_token"
+                                       value="{{ csrf_token() }}">
+                                {% if student.is_active %}
+                                    <button type="submit"
+                                            class="btn btn-outline-danger btn-sm">
+                                        Deactivate
+                                    </button>
+                                {% else %}
+                                    <button type="submit"
+                                            class="btn btn-outline-success btn-sm">
+                                        Activate
+                                    </button>
+                                {% endif %}
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <h5 class="fw-semibold">No students found</h5>
+            <p class="text-secondary mb-0">
+                {% if search %}
+                    Try a different name or email.
+                {% else %}
+                    Registered student accounts will appear here.
+                {% endif %}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

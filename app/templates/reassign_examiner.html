@@ -1,0 +1,61 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <h2>Reassign Examiner</h2>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <p>
+                <strong>Examination:</strong>
+                {{ examination.title }}
+            </p>
+
+            <p>
+                <strong>Current examiner:</strong>
+                {{ assignment.examiner.name }}
+            </p>
+
+            <form method="POST">
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ csrf_token() }}"
+                >
+
+                <div class="mb-3">
+                    <label for="examiner_id" class="form-label">
+                        New examiner
+                    </label>
+
+                    <select
+                        id="examiner_id"
+                        name="examiner_id"
+                        class="form-select"
+                        required
+                    >
+                        <option value="">Select an examiner</option>
+
+                        {% for examiner in examiners %}
+                        <option value="{{ examiner.id }}">
+                            {{ examiner.name }} — {{ examiner.email }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary"
+                    {% if not examiners %}disabled{% endif %}>
+                    Change Examiner
+                </button>
+
+                <a href="{{ url_for('main.manage_examiner_assignments') }}"
+                   class="btn btn-secondary">
+                    Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

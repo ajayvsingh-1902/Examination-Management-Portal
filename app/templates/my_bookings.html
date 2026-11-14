@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>My Examination Bookings</h2>
+    <p class="text-muted">
+        View the examinations you have booked.
+    </p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    {% if bookings %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Examination</th>
+                        <th>Course</th>
+                        <th>Course Code</th>
+                        <th>Duration</th>
+                        <th>Maximum Marks</th>
+                        <th>Exam Date</th>
+                        <th>Exam Time</th>
+                        <th>Booking Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for booking in bookings %}
+                        <tr>
+                            <td>{{ booking.examination.title }}</td>
+                            <td>{{ booking.examination.course.name }}</td>
+                            <td>{{ booking.examination.course.code }}</td>
+
+                            <td>
+                                {{ booking.examination.duration_minutes }} minutes
+                            </td>
+
+                            <td>{{ booking.examination.max_marks }}</td>
+
+                            <td>
+                                {% if booking.slot %}
+                                    {{ booking.slot.slot_date.strftime("%d-%m-%Y") }}
+                                {% else %}
+                                    Not assigned
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if booking.slot %}
+                                    {{ booking.slot.start_time.strftime("%I:%M %p") }}
+                                    – {{ booking.slot.end_time.strftime("%I:%M %p") }}
+                                {% else %}
+                                    Not assigned
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if booking.booking_time_ist %}
+                                    {{ booking.booking_time_ist.strftime("%d-%m-%Y %H:%M") }}
+                                {% else %}
+                                    Not available
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if booking.status == "booked" %}
+                                    <span class="badge bg-success">Booked</span>
+                                {% elif booking.status == "cancelled" %}
+                                    <span class="badge bg-secondary">Cancelled</span>
+                                {% else %}
+                                    <span class="badge bg-info">
+                                        {{ booking.status|title }}
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if booking.status == "booked" %}
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('main.cancel_booking', booking_id=booking.id) }}"
+                                        onsubmit="return confirm('Are you sure you want to cancel this booking?');"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="csrf_token"
+                                            value="{{ csrf_token() }}"
+                                        >
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                        >
+                                            Cancel Booking
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            You have not booked any examinations yet.
+        </div>
+    {% endif %}
+
+    <a href="{{ url_for('main.student_examinations') }}"
+       class="btn btn-primary">
+        Browse Examinations
+    </a>
+
+    <a href="{{ url_for('main.student_dashboard') }}"
+       class="btn btn-outline-secondary">
+        Back to Dashboard
+    </a>
+</div>
+{% endblock %}

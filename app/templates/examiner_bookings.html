@@ -1,0 +1,131 @@
+
+{% extends "base.html" %}
+
+{% block title %}Examiner Bookings and History{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Booked Students</h2>
+    <p class="text-muted">
+        Active bookings for your assigned examinations.
+    </p>
+
+    {% if bookings %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>Student</th>
+                    <th>Email</th>
+                    <th>Examination</th>
+                    <th>Course</th>
+                    <th>Exam Slot</th>
+                    <th>Booking Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.student.name }}</td>
+                    <td>{{ booking.student.email }}</td>
+                    <td>{{ booking.examination.title }}</td>
+                    <td>{{ booking.examination.course.name }}</td>
+                    <td>
+                        {% if booking.slot %}
+                            {{ booking.slot.slot_date }}
+                            {{ booking.slot.start_time }} -
+                            {{ booking.slot.end_time }}
+                        {% else %}
+                            Not assigned
+                        {% endif %}
+                    </td>
+                    <td>{{ booking.booked_at }}</td>
+                    <td>
+                        <a
+                            href="{{ url_for(
+                                'main.enter_exam_result',
+                                booking_id=booking.id
+                            ) }}"
+                            class="btn btn-primary btn-sm"
+                        >
+                            Assess Student
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <div class="alert alert-info">
+            No active or upcoming student bookings found.
+        </div>
+    {% endif %}
+
+    <hr class="my-4">
+
+    <h3>Examination History</h3>
+    <p class="text-muted">
+        Previous, completed, and cancelled bookings for your assigned examinations.
+    </p>
+
+    {% if history_bookings %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>Student</th>
+                    <th>Examination</th>
+                    <th>Course</th>
+                    <th>Exam Slot</th>
+                    <th>Booking Status</th>
+                    <th>Result Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in history_bookings %}
+                <tr>
+                    <td>{{ booking.student.name }}</td>
+                    <td>{{ booking.examination.title }}</td>
+                    <td>{{ booking.examination.course.name }}</td>
+                    <td>
+                        {% if booking.slot %}
+                            {{ booking.slot.slot_date }}
+                            {{ booking.slot.start_time }} -
+                            {{ booking.slot.end_time }}
+                        {% else %}
+                            Not assigned
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if booking.status == "cancelled" %}
+                            <span class="badge bg-danger">Cancelled</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Completed / Past</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if booking.result %}
+                            {{ booking.result.status|title }}
+                        {% else %}
+                            Not available
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <div class="alert alert-info">
+            No previous or cancelled bookings found.
+        </div>
+    {% endif %}
+
+    <a href="{{ url_for('main.examiner_dashboard') }}"
+       class="btn btn-secondary mt-3">
+        Back to Dashboard
+    </a>
+</div>
+{% endblock %}

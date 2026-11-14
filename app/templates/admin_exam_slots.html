@@ -1,0 +1,131 @@
+
+{% extends "base.html" %}
+
+{% block title %}All Examination Slots | EMP{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">All Examination Slots</h2>
+            <p class="text-secondary mb-0">
+                View examination schedules, capacity and seat availability.
+            </p>
+        </div>
+
+        <a href="{{ url_for('main.admin_dashboard') }}"
+           class="btn btn-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Slots Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-3 p-md-4">
+
+            {% if slots %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle mb-0">
+
+                    <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Examination</th>
+                            <th>Course</th>
+                            <th>Examiner</th>
+                            <th>Date</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Capacity</th>
+                            <th>Booked</th>
+                            <th>Available</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for slot in slots %}
+                        {% set booked = booking_counts.get(slot.id, 0) %}
+                        {% set available = [slot.capacity - booked, 0] | max %}
+
+                        <tr>
+                            <td>{{ loop.index }}</td>
+
+                            <td class="fw-semibold">
+                                {{ slot.examination.title }}
+                            </td>
+
+                            <td>
+                                {{ slot.examination.course.code }}
+                                — {{ slot.examination.course.name }}
+                            </td>
+
+                            <td>
+                                {{ slot.examiner.name if slot.examiner else "—" }}
+                            </td>
+
+                            <td>
+                                {{ slot.slot_date.strftime('%d %b %Y') }}
+                            </td>
+
+                            <td>
+                                {{ slot.start_time.strftime('%I:%M %p') }}
+                            </td>
+
+                            <td>
+                                {{ slot.end_time.strftime('%I:%M %p') }}
+                            </td>
+
+                            <td>{{ slot.capacity }}</td>
+
+                            <td>
+                                <span class="badge bg-primary">
+                                    {{ booked }}
+                                </span>
+                            </td>
+
+                            <td>
+                                {% if available == 0 %}
+                                <span class="badge bg-danger">Full</span>
+                                {% else %}
+                                <span class="badge bg-success">
+                                    {{ available }} seats
+                                </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% set slot_status = slot.display_status %}
+                                {% if slot_status == 'Available' %}
+                                <span class="badge bg-success">Available</span>
+                                {% elif slot_status == 'Full' %}
+                                <span class="badge bg-danger">Full</span>
+                                {% elif slot_status == 'Cancelled' %}
+                                <span class="badge bg-dark">Cancelled</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ slot_status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+            {% else %}
+            <div class="text-center py-5">
+                <h5 class="text-secondary">No examination slots found</h5>
+                <p class="text-muted mb-0">
+                    Examination slots will appear here once they have been created.
+                </p>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

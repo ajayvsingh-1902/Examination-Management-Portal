@@ -1,0 +1,64 @@
+
+{% extends "base.html" %}
+
+{% block title %}Student Assessments{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="fw-bold mb-2">Student Assessments</h2>
+    <p class="text-secondary mb-4">
+        View students booked into your assigned examinations.
+    </p>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if bookings %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Email</th>
+                            <th>Examination</th>
+                            <th>Course</th>
+                            <th>Slot Date</th>
+                            <th>Booking Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td>{{ booking.student.name }}</td>
+                            <td>{{ booking.student.email }}</td>
+                            <td>{{ booking.examination.title }}</td>
+                            <td>{{ booking.examination.course.code }}</td>
+                            <td>
+                                {% if booking.slot %}
+                                    {{ booking.slot.slot_date.strftime('%d %b %Y') }}
+                                {% else %}
+                                    Not scheduled
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-success">
+                                    {{ booking.status|title }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <h5>No booked students found</h5>
+                <p class="text-secondary mb-0">
+                    Students with active bookings for your assigned examinations
+                    will appear here.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

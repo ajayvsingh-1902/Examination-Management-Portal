@@ -1,0 +1,201 @@
+
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard | EMP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+        <h1 class="fw-bold mb-2">Admin Dashboard</h1>
+        <p class="text-secondary mb-0">
+            Welcome, {{ current_user.name }}. Manage your examination portal here.
+        </p>
+    </div>
+    <span class="badge bg-dark fs-6 px-3 py-2">Administrator</span>
+</div>
+
+<!-- User Statistics -->
+<h4 class="fw-bold mb-3">Users Overview</h4>
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-secondary mb-2">Total Users</p>
+                <h2 class="fw-bold mb-0">{{ total_users }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-secondary mb-2">Students</p>
+                <h2 class="fw-bold mb-0">{{ total_students }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-secondary mb-2">Examiners</p>
+                <h2 class="fw-bold mb-0">{{ total_examiners }}</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-secondary mb-2">Pending Approvals</p>
+                <h2 class="fw-bold mb-0">{{ pending_examiners }}</h2>
+                <a href="{{ url_for('main.manage_examiners') }}"
+                   class="small text-decoration-none">
+                    Review examiners
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Examination Statistics -->
+<h4 class="fw-bold mb-3">Academic Overview</h4>
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-secondary mb-2">Total Courses</p>
+                <h2 class="fw-bold mb-0">{{ total_courses }}</h2>
+                <p class="small text-secondary mt-2 mb-0">
+                    Courses in the portal
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-secondary mb-2">Total Examinations</p>
+                <h2 class="fw-bold mb-0">{{ total_examinations }}</h2>
+                <p class="small text-secondary mt-2 mb-0">
+                    All examination records
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-secondary mb-2">Published Exams</p>
+                <h2 class="fw-bold mb-0">{{ published_examinations }}</h2>
+                <p class="small text-secondary mt-2 mb-0">
+                    Available for students to browse
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-secondary mb-2">Draft Exams</p>
+                <h2 class="fw-bold mb-0">{{ draft_examinations }}</h2>
+                <p class="small text-secondary mt-2 mb-0">
+                    Not yet published
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Booking Statistics -->
+<h4 class="fw-bold mb-3">Booking Overview</h4>
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-secondary mb-2">Total Booking Records</p>
+                <h2 class="fw-bold mb-0">{{ total_bookings }}</h2>
+                <p class="small text-secondary mt-2 mb-0">
+                    Includes cancelled bookings
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-secondary mb-2">Active Bookings</p>
+                <h2 class="fw-bold mb-0">{{ active_bookings }}</h2>
+                <p class="small text-secondary mt-2 mb-0">
+                    Currently booked examinations
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Management Actions -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <h4 class="fw-bold mb-2">Management Centre</h4>
+        <p class="text-secondary mb-4">
+            Manage the users, courses, and examinations in your portal.
+        </p>
+
+        <div class="row g-3">
+            <div class="col-12 col-md-4">
+                <div class="border rounded-3 p-3 h-100">
+                    <h5 class="fw-bold">Examiner Approvals</h5>
+                    <p class="text-secondary small">
+                        Review examiner accounts and their approval status.
+                    </p>
+                    <a href="{{ url_for('main.manage_examiners') }}"
+                       class="btn btn-primary w-100">
+                        Manage Examiners
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="border rounded-3 p-3 h-100">
+                    <h5 class="fw-bold">Course Management</h5>
+                    <p class="text-secondary small">
+                        Add and manage courses offered through the portal.
+                    </p>
+                    <a href="{{ url_for('main.manage_courses') }}"
+                       class="btn btn-primary w-100">
+                        Manage Courses
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="border rounded-3 p-3 h-100">
+                    <h5 class="fw-bold">Examination Management</h5>
+                    <p class="text-secondary small">
+                        Create examinations and manage their publication.
+                    </p>
+                    <a href="{{ url_for('main.manage_examinations') }}"
+                       class="btn btn-primary w-100">
+                        Manage Examinations
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="POST" action="{{ url_for('main.logout') }}" class="mt-4">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button class="btn btn-outline-danger" type="submit">
+        Log Out
+    </button>
+</form>
+{% endblock %}

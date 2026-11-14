@@ -1,0 +1,151 @@
+
+{% extends "base.html" %}
+
+{% block title %}Edit Exam Slot | EMP{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h1 class="fw-bold mb-1">Edit Exam Slot</h1>
+        <p class="text-secondary mb-0">
+            Update the examination schedule and seat capacity.
+        </p>
+    </div>
+
+    <a href="{{ url_for('main.manage_exam_slots') }}"
+       class="btn btn-outline-secondary">
+        Back to Slots
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form method="POST"
+              action="{{ url_for('main.edit_exam_slot', slot_id=slot.id) }}">
+
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+                <label for="examination_id" class="form-label fw-semibold">
+                    Examination *
+                </label>
+
+                <select class="form-select"
+                        id="examination_id"
+                        name="examination_id"
+                        required>
+                    <option value="">Select an examination</option>
+
+                    {% for exam in examinations %}
+                    <option value="{{ exam.id }}"
+                        {% if exam.id == slot.examination_id %}selected{% endif %}>
+                        {{ exam.title }} — {{ exam.course.code }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="slot_date" class="form-label fw-semibold">
+                        Examination Date *
+                    </label>
+                    <input type="date"
+                           class="form-control"
+                           id="slot_date"
+                           name="slot_date"
+                           value="{{ slot.slot_date.strftime('%Y-%m-%d') }}"
+                           required>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="start_time" class="form-label fw-semibold">
+                        Start Time *
+                    </label>
+                    <input type="time"
+                           class="form-control"
+                           id="start_time"
+                           name="start_time"
+                           value="{{ slot.start_time.strftime('%H:%M') }}"
+                           required>
+                </div>
+
+                <div class="col-md-4">
+                    <label for="end_time" class="form-label fw-semibold">
+                        End Time *
+                    </label>
+                    <input type="time"
+                           class="form-control"
+                           id="end_time"
+                           name="end_time"
+                           value="{{ slot.end_time.strftime('%H:%M') }}"
+                           required>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="capacity" class="form-label fw-semibold">
+                        Seat Capacity *
+                    </label>
+                    <input type="number"
+                           class="form-control"
+                           id="capacity"
+                           name="capacity"
+                           min="1"
+                           max="10000"
+                           value="{{ slot.capacity }}"
+                           required>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">
+                    Save Changes
+                </button>
+
+                <a href="{{ url_for('main.manage_exam_slots') }}"
+                   class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const dateInput = document.getElementById("slot_date");
+    const startInput = document.getElementById("start_time");
+    const endInput = document.getElementById("end_time");
+    const form = document.querySelector("form");
+
+    if (dateInput) {
+        const now = new Date();
+        const today = [
+            now.getFullYear(),
+            String(now.getMonth() + 1).padStart(2, "0"),
+            String(now.getDate()).padStart(2, "0")
+        ].join("-");
+
+        dateInput.min = today;
+    }
+
+    if (startInput && endInput) {
+        startInput.addEventListener("change", function () {
+            endInput.min = this.value;
+        });
+    }
+
+    if (form && startInput && endInput) {
+        form.addEventListener("submit", function (event) {
+            if (startInput.value >= endInput.value) {
+                event.preventDefault();
+                alert("End time must be later than start time.");
+                endInput.focus();
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

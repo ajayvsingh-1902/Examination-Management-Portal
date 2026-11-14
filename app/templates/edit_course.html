@@ -1,0 +1,106 @@
+
+{% extends "base.html" %}
+
+{% block title %}Edit Course | EMP{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <div>
+        <h1 class="fw-bold mb-2">Edit Course</h1>
+        <p class="text-secondary mb-0">
+            Update the details for {{ course.code }}.
+        </p>
+    </div>
+
+    <a href="{{ url_for('main.manage_courses') }}"
+       class="btn btn-outline-secondary">
+        Back to Courses
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-body-tertiary py-3">
+        <h5 class="fw-bold mb-0">Course Details</h5>
+    </div>
+
+    <div class="card-body p-4">
+        <form method="POST"
+              action="{{ url_for('main.edit_course', course_id=course.id) }}">
+
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+                <label for="code" class="form-label fw-semibold">
+                    Course Code *
+                </label>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="code"
+                    name="code"
+                    value="{{ course.code }}"
+                    maxlength="20"
+                    pattern="[A-Za-z0-9_-]+"
+                    title="Use letters, numbers, hyphens or underscores."
+                    required
+                >
+            </div>
+
+            <div class="mb-3">
+                <label for="name" class="form-label fw-semibold">
+                    Course Name *
+                </label>
+                <input
+                    type="text"
+                    class="form-control"
+                    id="name"
+                    name="name"
+                    value="{{ course.name }}"
+                    maxlength="150"
+                    required
+                >
+            </div>
+
+            <div class="mb-4">
+                <label for="description" class="form-label fw-semibold">
+                    Description
+                </label>
+                <textarea
+                    class="form-control"
+                    id="description"
+                    name="description"
+                    rows="4"
+                    maxlength="1000"
+                >{{ course.description or "" }}</textarea>
+            </div>
+
+            <div class="mb-4">
+                <label for="status" class="form-label fw-semibold">
+                    Status
+                </label>
+                <select class="form-select" id="status" name="status">
+                    <option value="active"
+                            {% if course.status == 'active' %}selected{% endif %}>
+                        Active
+                    </option>
+                    <option value="inactive"
+                            {% if course.status == 'inactive' %}selected{% endif %}>
+                        Inactive
+                    </option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Save Changes
+            </button>
+
+            <a href="{{ url_for('main.manage_courses') }}"
+               class="btn btn-outline-secondary ms-2">
+                Cancel
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

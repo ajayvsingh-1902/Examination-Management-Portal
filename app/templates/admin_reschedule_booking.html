@@ -1,0 +1,89 @@
+
+{% extends "base.html" %}
+
+{% block title %}Reschedule Booking{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h4 class="mb-0">Reschedule Student Booking</h4>
+                </div>
+
+                <div class="card-body">
+                    <h5>Booking Details</h5>
+
+                    <p>
+                        <strong>Booking ID:</strong> {{ booking.id }}<br>
+                        <strong>Student:</strong> {{ booking.student.name }}<br>
+                        <strong>Email:</strong> {{ booking.student.email }}<br>
+                        <strong>Examination:</strong>
+                        {{ booking.examination.title }}<br>
+                        <strong>Course:</strong>
+                        {{ booking.examination.course.name }}
+                    </p>
+
+                    <hr>
+
+                    <h5>Current Slot</h5>
+
+                    {% if booking.slot %}
+                        <p>
+                            {{ booking.slot.slot_date }} |
+                            {{ booking.slot.start_time }} –
+                            {{ booking.slot.end_time }}
+                        </p>
+                    {% else %}
+                        <p class="text-muted">No slot currently assigned.</p>
+                    {% endif %}
+
+                    <hr>
+
+                    <form method="POST">
+                        <input type="hidden" name="csrf_token"
+                               value="{{ csrf_token() }}">
+
+                        <div class="mb-3">
+                            <label for="slot_id" class="form-label">
+                                Select New Slot
+                            </label>
+
+                            <select class="form-select" id="slot_id"
+                                    name="slot_id" required>
+                                <option value="">Choose a slot</option>
+
+                                {% for slot in valid_slots %}
+                                <option value="{{ slot.id }}">
+                                    {{ slot.slot_date }} |
+                                    {{ slot.start_time }} –
+                                    {{ slot.end_time }} |
+                                    Capacity: {{ slot.capacity }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        {% if valid_slots %}
+                            <button type="submit" class="btn btn-primary">
+                                Confirm Rescheduling
+                            </button>
+                        {% else %}
+                            <p class="text-warning">
+                                No alternative slots currently have available
+                                capacity.
+                            </p>
+                        {% endif %}
+
+                        <a href="{{ url_for('main.admin_bookings') }}"
+                           class="btn btn-outline-secondary ms-2">
+                            Cancel
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,147 @@
+
+{% extends "base.html" %}
+
+{% block title %}Manage Examination Rubrics{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">Examination Rubrics</h2>
+            <p class="text-secondary mb-0">
+                Create assessment criteria for each examination.
+            </p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="fw-bold mb-3">Add Rubric Criterion</h5>
+
+            <form method="POST" action="{{ url_for('main.manage_rubrics') }}">
+                <input type="hidden" name="csrf_token"
+                       value="{{ csrf_token() }}">
+
+                <div class="mb-3">
+                    <label for="examination_id" class="form-label">
+                        Examination
+                    </label>
+                    <select name="examination_id" id="examination_id"
+                            class="form-select" required>
+                        <option value="">Select examination</option>
+                        {% for examination in examinations %}
+                        <option value="{{ examination.id }}">
+                            {{ examination.title }} — {{ examination.course.code }}
+                            ({{ examination.max_marks }} marks)
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="criterion_name" class="form-label">
+                        Criterion Name
+                    </label>
+                    <input type="text" name="criterion_name"
+                           id="criterion_name" class="form-control"
+                           maxlength="150" required
+                           placeholder="e.g. Practical Implementation">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="max_marks" class="form-label">
+                            Maximum Marks
+                        </label>
+                        <input type="number" name="max_marks"
+                               id="max_marks" class="form-control"
+                               min="0.01" step="0.01" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="weightage" class="form-label">
+                            Weightage
+                        </label>
+                        <input type="number" name="weightage"
+                               id="weightage" class="form-control"
+                               min="0.01" step="0.01" value="1" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">
+                        Description
+                    </label>
+                    <textarea name="description" id="description"
+                              class="form-control" rows="3"
+                              maxlength="2000"
+                              placeholder="Describe how this criterion is assessed"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Add Criterion
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="fw-bold mb-3">Existing Rubric Criteria</h5>
+
+            {% if rubrics %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Examination</th>
+                            <th>Criterion</th>
+                            <th>Maximum Marks</th>
+                            <th>Weightage</th>
+                            <th>Description</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rubric in rubrics %}
+                        <tr>
+                            <td>{{ rubric.examination.title }}</td>
+                            <td>{{ rubric.criterion_name }}</td>
+                            <td>{{ rubric.max_marks }}</td>
+                            <td>{{ rubric.weightage }}</td>
+                            <td>{{ rubric.description or "—" }}</td>
+                            
+<td>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('main.edit_rubric', rubric_id=rubric.id) }}"
+           class="btn btn-sm btn-outline-primary">
+            Edit
+        </a>
+
+        <form method="POST"
+              action="{{ url_for('main.delete_rubric', rubric_id=rubric.id) }}"
+              onsubmit="return confirm('Delete this rubric criterion?');">
+            <input type="hidden" name="csrf_token"
+                   value="{{ csrf_token() }}">
+            <button type="submit"
+                    class="btn btn-sm btn-outline-danger">
+                Delete
+            </button>
+        </form>
+    </div>
+</td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-secondary mb-0">
+                No rubric criteria have been created yet.
+            </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
